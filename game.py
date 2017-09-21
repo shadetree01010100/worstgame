@@ -1,4 +1,3 @@
-import datetime
 import math
 import random
 import pygame
@@ -15,6 +14,7 @@ STEP = 1
 TURN_RADIUS = 10
 _TURN = 360 / (TURN_RADIUS * math.pi)
 START_FOODS = 50
+FOOD_ENERGY = 10
 START_HP = 100
 FRAME_LIMIT = 100000
 
@@ -110,7 +110,7 @@ while running:
             if distance < get_radius(player_hp)]
     foods = [food for index, food in enumerate(foods) if index not in eaten]
     player_position = (int(round(player_x)), int(round(player_y)))
-    player_hp += len(eaten)
+    player_hp += len(eaten) * FOOD_ENERGY
     if len(foods) == 0:
         break
 

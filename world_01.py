@@ -4,23 +4,23 @@ import random
 
 class World():
 
-    START_HP = 100,
+    START_HP = 100
     TURN_RADIUS = 10
     STEP = 1
     FOOD_ENERGY = 10
 
-    def __init__(self, SIZE=(800, 800), START_FOODS=50):
+    def __init__(self, START_FOODS=50, SIZE=(800, 800)):
         self.WIDTH, self.HEIGHT = SIZE
+        self.TURN = 360 / ((self.TURN_RADIUS * math.pi) * self.STEP)
         self.foods = []
         for _ in range(START_FOODS):
             self.foods.append(self._random_coords())
         self.player_x, self.player_y = self._random_coords()
         self.player_heading = random.randint(0, 359)
         self.player_hp = self.START_HP
-        self.turn_step = 360 / ((self.TURN_RADIUS * math.pi) * self.STEP)
 
     def frame(self, input):
-        self.player_heading = (self.player_heading + input * self.turn_step) % 360
+        self.player_heading = (self.player_heading + input * self.TURN) % 360
         heading_rads = math.radians(self.player_heading)
         self.player_x = (self.player_x + math.sin(heading_rads) * self.STEP) % self.WIDTH
         self.player_y = (self.player_y - math.cos(heading_rads) * self.STEP) % self.HEIGHT

@@ -7,13 +7,18 @@ class World():
     START_HP = 100
     TURN_RADIUS = 10
     STEP = 1
+    WORLD_SIZE = (800, 800)
+    START_FOODS = 50
     FOOD_ENERGY = 10
+    
+    WIDTH, HEIGHT = WORLD_SIZE
+    TURN = 360 / ((TURN_RADIUS * math.pi) * STEP)
 
-    def __init__(self, START_FOODS=50, SIZE=(800, 800)):
-        self.WIDTH, self.HEIGHT = SIZE
-        self.TURN = 360 / ((self.TURN_RADIUS * math.pi) * self.STEP)
+    def __init__(self, SEED=None):
+        if SEED:
+            random.seed(int(SEED))
         self.foods = []
-        for _ in range(START_FOODS):
+        for _ in range(self.START_FOODS):
             self.foods.append(self._random_coords())
         self.player_x, self.player_y = self._random_coords()
         self.player_heading = random.randint(0, 359)

@@ -4,12 +4,11 @@ import random
 
 class World():
 
-    START_HP = 100
+    PLAYER_RADIUS = 5
     TURN_RADIUS = 10
     STEP = 1
-    WORLD_SIZE = (800, 800)
     START_FOODS = 50
-    FOOD_ENERGY = 10
+    WORLD_SIZE = (800, 800)
     
     WIDTH, HEIGHT = WORLD_SIZE
     TURN = 360 / ((TURN_RADIUS * math.pi) * STEP)
@@ -22,7 +21,6 @@ class World():
             self.foods.append(self._random_coords())
         self.player_x, self.player_y = self._random_coords()
         self.player_heading = random.randint(0, 359)
-        self.player_hp = self.START_HP
 
     def frame(self, input):
         self.player_heading = (self.player_heading + input * self.TURN) % 360
@@ -32,10 +30,9 @@ class World():
         food_vectors = [((abs(self.player_x - x)), abs((self.player_y - y))) for x, y in self.foods]
         t_food_vectors = [(min(vector[0], self.WIDTH - vector[0]), min(vector[1], self.HEIGHT - vector[1])) for vector in food_vectors]
         food_distances = [self._vector_distance(vector) for vector in t_food_vectors]
-        eaten = [index for index, distance in enumerate(food_distances) if distance < self._get_radius(self.player_hp)]
+        eaten = [index for index, distance in enumerate(food_distances) if distance < self.PLAYER_RADIUS]
         self.foods = [food for index, food in enumerate(self.foods) if index not in eaten]
         player_position = (int(round(self.player_x)), int(round(self.player_y)))
-        self.player_hp += len(eaten) * self.FOOD_ENERGY
         try:
             nearest =  min([distance for index, distance in enumerate(food_distances) if index not in eaten])
             return nearest

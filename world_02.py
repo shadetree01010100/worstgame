@@ -38,16 +38,17 @@ class World():
         self.player_y = (
             self.player_y - math.cos(heading_rads) * self.STEP) % self._HEIGHT
         food_vectors = []
+        remaining_foods = []
+        food_distances = []
         for x, y in self.foods:
             vector = (
                 min(abs(self.player_x - x), self._WIDTH - x),
                 min(abs(self.player_y - y), self._HEIGHT - y))
-            food_vectors.append(vector)
-        food_distances = [self._distance(vector) for vector in food_vectors]
-        remaining_foods = []
-        for index, distance in enumerate(food_distances):
+            distance = self._distance(vector)
             if distance > self.PLAYER_RADIUS:
-                remaining_foods.append(self.foods[index])
+                food_vectors.append(vector)
+                remaining_foods.append((x, y))
+                food_distances.append(distance)
         if not remaining_foods:
             return None
         self.foods = remaining_foods

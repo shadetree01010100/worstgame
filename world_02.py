@@ -10,20 +10,20 @@ class World():
     STEP = 1
     START_FOODS = 50
     WORLD_SIZE = (800, 800)
-    
+
     _WIDTH, _HEIGHT = WORLD_SIZE
     _TURN = 360 / ((TURN_RADIUS * math.pi) * STEP)
 
-    def __init__(self, SEED=None, render=False):
+    def __init__(self, SEED=None, RENDER=False):
         if SEED:
             random.seed(int(SEED))
-        if render:
+        if RENDER:
             pygame.init()
             pygame.font.init()
             surface = pygame.display.set_mode(self.WORLD_SIZE)
             pygame.display.set_caption('window title goes here')
             default_font = pygame.font.Font(None, 30)
-        self.render = render
+        self.render = RENDER
         self.foods = []
         for _ in range(self.START_FOODS):
             self.foods.append(self._random_coords())

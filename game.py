@@ -1,4 +1,3 @@
-import datetime
 import math
 import random
 import pygame
@@ -15,6 +14,8 @@ STEP = 1
 TURN_RADIUS = 10
 _TURN = 360 / (TURN_RADIUS * math.pi)
 START_FOODS = 50
+FOOD_ENERGY = 10
+START_HP = 100
 FRAME_LIMIT = 100000
 
 pygame.init()
@@ -25,8 +26,11 @@ pygame.display.set_caption('this game blows lol')
 default_font = pygame.font.Font(None, 30)
 clock = pygame.time.Clock()
 
-def draw_player(position, area=100, color=white):
-    radius = int(round(math.sqrt(area / math.pi)))
+def get_radius(area):
+    return int(round(math.sqrt(area / math.pi)))
+
+def draw_player(position, area, color=white):
+    radius = get_radius(area)
     pygame.draw.circle(world, color, position, radius)
 
 def draw_pixel(position, color=green):
@@ -41,8 +45,8 @@ def draw_pixel(position, color=green):
         (position[0] - 2, position[1]),
         (position[0] + 2, position[1]))
 
-# def draw_vector(start, stop, color=white):
-    # pygame.draw.line(world, color, start, stop)
+def draw_vector(start, stop, color=white):
+    pygame.draw.line(world, color, start, stop)
 
 def draw_radar(position, distance):
     pygame.draw.circle(world, green, position, max(distance, 1), 1)
@@ -65,6 +69,7 @@ for _ in range(START_FOODS):
 
 player_x, player_y = random_coords()
 player_heading = random.randint(0, 359)
+player_hp = START_HP
 
 print('\tpress [esc] or [Q] to quit')
 running = True
@@ -91,35 +96,44 @@ while running:
     heading_rads = math.radians(player_heading)
     player_x = (player_x + math.sin(heading_rads) * STEP) % WIDTH
     player_y = (player_y - math.cos(heading_rads) * STEP) % HEIGHT
-    # # # coordinate deltas between player and each food
+    # coordinate deltas between player and each food
     food_vectors = [
         ((abs(player_x - x)), abs((player_y - y))) for x, y in foods]
-    # # # this world is a "hypercylinder:" both axes loop back to themselves.
-    # # # a point is never further than half the dimension,
-    # # # so we find the shortest distance to each food considering we can 
-    # # # circumvent the world on either axis
+    # this world is a "hypercylinder:" both axes loop back to themselves,
+    # so a point is never further than half the dimension away
     t_food_vectors = [
         (min(vector[0], WIDTH - vector[0]),
         min(vector[1], HEIGHT - vector[1])) for vector in food_vectors]
     food_distances = [vector_distance(vector) for vector in t_food_vectors]
-    # nearest = [
-        # foods[index] for index, vector in enumerate(t_food_vectors) \
-            # if vector_distance(vector) == min(food_distances)]
-    sensed_radius = [
-        vector_distance(vector) for vector in t_food_vectors \
-            if vector_distance(vector) == min(food_distances)]
+    # food inside player's radius get eaten
+    eaten = [index for index, distance in enumerate(food_distances) \
+            if distance < get_radius(player_hp)]
+    foods = [food for index, food in enumerate(foods) if index not in eaten]
     player_position = (int(round(player_x)), int(round(player_y)))
+    player_hp += len(eaten) * FOOD_ENERGY
+    if len(foods) == 0:
+        break
+
+    # render world
     world.fill(black)
-    draw_player(player_position)
+    draw_player(player_position, player_hp)
     for food in foods:
         draw_pixel(food)
-    # for coords in nearest:
-        # draw_vector(player_position, coords)
-    draw_radar(player_position, int(round(min(sensed_radius))))
-    elapsed_frames += 1
+    remain = [
+        distance for index, distance in enumerate(food_distances) \
+                if index not in eaten]
+    nearest_foods = [
+        foods[index] for index, distance in enumerate(remain) \
+                if distance == min(remain)]
+    for x, y in nearest_foods:
+        draw_vector(player_position, (x, y))
+    draw_radar(player_position, int(round(min(remain))))
     draw_score()
     pygame.display.update()
     if FPS:
         clock.tick(FPS)
+
+    elapsed_frames += 1
+
 print('\t{} food left after {} frames'.format(len(foods), elapsed_frames))
 pygame.quit()

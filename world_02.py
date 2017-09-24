@@ -31,8 +31,12 @@ class World():
             self.foods.append(self._random_coords())
         self.player_x, self.player_y = self._random_coords()
         self.player_heading = random.randint(0, 359)
-        # todo: return nearest
-        self.nearest_food = None
+        food_distances = []
+        for x, y in self.foods:
+            distance = self._distance_from_player(x, y)[1]
+            if distance > self.PLAYER_RADIUS:
+                food_distances.append(distance)
+        self.start_here = min(food_distances)
 
     def episode(self, input):
         self.episodes += 1
@@ -47,12 +51,7 @@ class World():
         remaining_foods = []
         food_distances = []
         for x, y in self.foods:
-            delta_x = abs(self.player_x - x)
-            delta_y = abs(self.player_y - y)
-            vector = (
-                min(delta_x, self.WIDTH / 2 - abs(self.WIDTH / 2 - delta_x)),
-                min(delta_y, self.HEIGHT / 2 - abs(self.HEIGHT / 2 - delta_y)))
-            distance = self._distance(vector)
+            vector, distance = self._distance_from_player(x, y)
             if distance > self.PLAYER_RADIUS:
                 food_vectors.append(vector)
                 remaining_foods.append((x, y))
@@ -62,7 +61,7 @@ class World():
                 pygame.display.quit()
             return None
         self.foods = remaining_foods
-        self.nearest_food = min(food_distances)
+        closest = min(food_distances)
         if self.RENDER and self.episodes % self.RENDER == 0:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -72,10 +71,19 @@ class World():
             for food in self.foods:
                 self._draw_food(food)
             self._draw_player()
-            self._draw_stats(input)
+            self._draw_stats(input, closest)
             pygame.display.update()
             self.clock.tick()
-        return self.nearest_food
+        return closest
+
+    def _distance_from_player(self, x, y):
+        delta_x = abs(self.player_x - x)
+        delta_y = abs(self.player_y - y)
+        vector = (
+            min(delta_x, self.WIDTH / 2 - abs(self.WIDTH / 2 - delta_x)),
+            min(delta_y, self.HEIGHT / 2 - abs(self.HEIGHT / 2 - delta_y)))
+        distance = math.sqrt(sum([v**2 for v in vector]))
+        return vector, distance
 
     def _draw_player(self, color=(255, 255, 255)):
         position = (int(round(self.player_x)), int(round(self.player_y)))
@@ -86,23 +94,17 @@ class World():
         pygame.draw.line(self.surface, color, (x, y - 2), (x, y + 2))
         pygame.draw.line(self.surface, color, (x - 2, y ), (x + 2, y))
 
-    def _draw_stats(self, input, color=(255, 255, 255)):
-        elapsed_ep = self.font.render('E: {}'.format(self.episodes), False, color)
-        remaining = self.font.render('R: {}'.format(len(self.foods)), False, color)
-        episode_in = self.font.render(
-            'I: {}'.format(round(input, 2)), False, color)
-        episode_out = self.font.render(
-            'O: {}'.format(round(self.nearest_food, 1)), False, color)
-        self.surface.blit(elapsed_ep, (1, 0))
-        self.surface.blit(remaining, (1, 16))
-        self.surface.blit(episode_in, (1, 32))
-        self.surface.blit(episode_out, (1, 48))
+    def _draw_stats(self, input, closest, color=(255, 255, 255)):
+        elapsed = self.font.render('{}'.format(self.episodes), 0, color)
+        remain = self.font.render('{}'.format(len(self.foods)), 0, color)
+        ep_in = self.font.render('{}'.format(round(input, 2)), 0, color)
+        ep_out = self.font.render('{}'.format(round(closest, 1)), 0, color)
+        self.surface.blit(elapsed, (1, 0))
+        self.surface.blit(remain, (1, 16))
+        self.surface.blit(ep_in, (1, 32))
+        self.surface.blit(ep_out, (1, 48))
 
     def _random_coords(self):
         return (
             random.randint(0, self.WIDTH - 1),
             random.randint(0, self.HEIGHT - 1))
-
-    @staticmethod
-    def _distance(vector):
-        return math.sqrt(sum([v**2 for v in vector]))

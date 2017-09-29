@@ -33,7 +33,7 @@ class World():
         self.player_heading = random.randint(0, 359)
         food_distances = []
         for x, y in self.foods:
-            distance = self._distance_from_player(x, y)[1]
+            distance = self._distance_from_player(x, y)
             if distance > self.PLAYER_RADIUS:
                 food_distances.append(distance)
         self.start_here = min(food_distances)
@@ -47,13 +47,11 @@ class World():
             self.player_x + math.sin(heading_rads) * self.STEP) % self.WIDTH
         self.player_y = (
             self.player_y - math.cos(heading_rads) * self.STEP) % self.HEIGHT
-        food_vectors = []
         remaining_foods = []
         food_distances = []
         for x, y in self.foods:
-            vector, distance = self._distance_from_player(x, y)
+            distance = self._distance_from_player(x, y)
             if distance > self.PLAYER_RADIUS:
-                food_vectors.append(vector)
                 remaining_foods.append((x, y))
                 food_distances.append(distance)
         if not remaining_foods or self.episodes == self.EPISODE_LIMIT:
@@ -83,7 +81,7 @@ class World():
             min(delta_x, self.WIDTH / 2 - abs(self.WIDTH / 2 - delta_x)),
             min(delta_y, self.HEIGHT / 2 - abs(self.HEIGHT / 2 - delta_y)))
         distance = math.sqrt(sum([v**2 for v in vector]))
-        return vector, distance
+        return distance
 
     def _draw_player(self, color=(255, 255, 255)):
         position = (int(round(self.player_x)), int(round(self.player_y)))

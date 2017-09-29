@@ -19,4 +19,5 @@ for trial in range(trials):
     if i < w.EPISODE_LIMIT:
         results.append(i)
 print('\t{} average performance, excluding {} failures'.format(
-    int(round(sum(results) / len(results))), trials - len(results)))
+    int(round(sum(results) / len(results))),
+    trials - len(results)))

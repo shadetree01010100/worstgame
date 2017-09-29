@@ -12,4 +12,4 @@ Eat the food until there's no more food.
 48.28014010183533
 ```
 
-Create an instance of `World` and get the initial distance to nearest food from `World.start_here`. Call `World.episode(x)` where `-1 < x < 1` to get a new distance. A return value of `None` indicates the end of the trial, either because there is no food left or `World.episodes > World.EPISODE_LIMIT`.
+Create an instance of `World` and get the initial distance to nearest food from `World.start_here`. Call `World.episode(x)` with `-1 <= x <= 1` to get a new distance. `World.episode` returns `None` when there is no food left or `World.episodes > World.EPISODE_LIMIT`.

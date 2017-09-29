@@ -15,7 +15,7 @@ class World():
     TURN_DEG = 30
     STEP = 1
 
-    def __init__(self, WINDOW_TITLE, SEED=None):
+    def __init__(self, WINDOW_TITLE='', SEED=None):
         if SEED:
             random.seed(int(SEED))
         if self.RENDER:

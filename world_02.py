@@ -8,7 +8,7 @@ class World():
     START_FOODS = 50
     WIDTH = 800
     HEIGHT = 800
-    RENDER = False
+    RENDER = True
     EPISODE_LIMIT = 100000
 
     PLAYER_RADIUS = 5
@@ -106,3 +106,9 @@ class World():
         return (
             random.randint(0, self.WIDTH - 1),
             random.randint(0, self.HEIGHT - 1))
+
+
+if __name__ == "__main__":
+    WORLD = World()
+    while not input("press enter to continue"):
+        WORLD.episode(0)

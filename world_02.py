@@ -24,14 +24,7 @@ class Player():
             (x + math.sin(heading_rads) * self.STEP) % self.world.WIDTH,
             (y - math.cos(heading_rads) * self.STEP) % self.world.HEIGHT
         )
-
-    def consume_foods(self):
-        remaining_foods = []
-        for coordinates in self.world.foods:
-            distance = self._distance(coordinates)
-            if distance > self.PLAYER_RADIUS:
-                remaining_foods.append(coordinates)
-        self.world.foods = remaining_foods
+        self._consume_foods()
 
     def closest_food(self):
         min_distance = self.world.WIDTH * self.world.HEIGHT
@@ -39,6 +32,14 @@ class Player():
             distance = self._distance(coordinates)
             min_distance = min(min_distance, distance)
         return min_distance
+
+    def _consume_foods(self):
+        remaining_foods = []
+        for coordinates in self.world.foods:
+            distance = self._distance(coordinates)
+            if distance > self.PLAYER_RADIUS:
+                remaining_foods.append(coordinates)
+        self.world.foods = remaining_foods
 
     def _distance(self, coordinates):
         delta_x = abs(self.coordinates[0] - coordinates[0])
@@ -80,7 +81,6 @@ class World():
     def episode(self, input):
         self.episodes += 1
         self.player.move(input)
-        self.player.consume_foods()
 
     def done(self):
         if not self.foods or self.episodes == self.EPISODE_LIMIT:

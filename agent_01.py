@@ -1,20 +1,22 @@
 from world_02 import World
 
 
-World.RENDER = 100
+RENDER = 100
 trials = 10
 results = []
 for trial in range(trials):
-    w = World('trial {} of {}'.format(trial + 1, trials))
+    WINDOW_TITLE = 'trial {} of {}'.format(trial + 1, trials)
+    w = World(WINDOW_TITLE, RENDER=RENDER)
     i = 0
-    dist = last_dist = w.start_here
-    while dist:
+    dist = last_dist = w.player.closest_food()
+    while not w.done():
         if dist > last_dist:
             move = 1
         else:
             move = 0
         last_dist = dist
-        dist = w.episode(move)
+        w.episode(move)
+        dist = w.player.closest_food()
         i += 1
     if i < w.EPISODE_LIMIT:
         results.append(i)

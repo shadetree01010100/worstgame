@@ -3,7 +3,7 @@ from world_02 import World
 
 
 RENDER = 0
-trials = 1
+trials = 3
 results = []
 for trial in range(trials):
     WINDOW_TITLE = 'RANDOM TRIAL {} of {}'.format(trial + 1, trials)

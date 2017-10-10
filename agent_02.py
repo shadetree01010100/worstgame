@@ -2,8 +2,8 @@ import random
 from world_02 import World
 
 
-RENDER = 1
-trials = 1
+RENDER = 100
+trials = 10
 results = []
 for trial in range(trials):
     WINDOW_TITLE = 'trial {} of {}'.format(trial + 1, trials)

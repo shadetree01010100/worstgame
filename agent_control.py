@@ -2,13 +2,13 @@ import random
 from world_02 import World
 
 
-RENDER = 0
+RENDER = 1000
 trials = 3
 results = []
 for trial in range(trials):
     WINDOW_TITLE = 'RANDOM TRIAL {} of {}'.format(trial + 1, trials)
     w = World(WINDOW_TITLE, RENDER=RENDER)
-    i = 1
+    i = 0
     while not w.done():
         move = random.choice([-1, 0, 1])
         w.episode(move)
@@ -26,7 +26,7 @@ results = []
 for trial in range(trials):
     WINDOW_TITLE = 'STRAIGHTLINE TRIAL {} of {}'.format(trial + 1, trials)
     w = World(WINDOW_TITLE, RENDER=RENDER)
-    i = 1
+    i = 0
     while not w.done():
         w.episode(0)
         i += 1

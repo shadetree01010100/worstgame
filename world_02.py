@@ -12,7 +12,7 @@ class Player():
     def __init__(self, world, coordinates):
         self.world = world
         self.coordinates = coordinates
-        self.direction = random.randint(0, 359)
+        self.direction = random.uniform(0, 360)
         self.last_move = 0
 
     def move(self, direction=0):
@@ -63,8 +63,8 @@ class World():
 
     def __init__(self, WINDOW_TITLE='', SEED=None, RENDER=True):
         self.RENDER = RENDER
-        if SEED:
-            random.seed(int(SEED))
+        if SEED != None:
+            random.seed(SEED)
         self.episodes = 0
         self.player = Player(self, self._random_coords())
         self.foods = []
@@ -129,8 +129,8 @@ class World():
 
     def _random_coords(self):
         return (
-            random.randint(0, self.WIDTH - 1),
-            random.randint(0, self.HEIGHT - 1))
+            random.uniform(0, self.WIDTH),
+            random.uniform(0, self.HEIGHT))
 
 
 if __name__ == "__main__":

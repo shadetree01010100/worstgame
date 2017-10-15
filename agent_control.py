@@ -2,7 +2,7 @@ import random
 from world_02 import World
 
 
-RENDER = 1000
+RENDER = 10
 trials = 3
 results = []
 for trial in range(trials):
@@ -10,7 +10,7 @@ for trial in range(trials):
     w = World(WINDOW_TITLE, RENDER=RENDER)
     i = 0
     while not w.done():
-        move = random.choice([-1, 0, 1])
+        move = random.uniform(-1, 1)
         w.episode(move)
         i += 1
     if i < w.EPISODE_LIMIT:

@@ -2,7 +2,7 @@ import random
 from world_02 import World
 
 
-RENDER = 100
+RENDER = 100    
 trials = 10
 results = []
 
@@ -22,7 +22,7 @@ for trial in range(trials):
         dist = w.player.closest_food()
         delta = dist - last_dist
 
-        if not delta < last_delta < 0:
+        if not delta < last_delta:
             move *= -1
 
         i += 1

@@ -2,7 +2,7 @@ import random
 from world_02 import World
 
 
-RENDER = 100    
+RENDER = 100
 trials = 10
 results = []
 

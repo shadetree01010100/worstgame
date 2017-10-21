@@ -91,7 +91,7 @@ class World():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
-                    return True
+                    return -1
             self._draw_world()
         return not bool(self.foods)
 

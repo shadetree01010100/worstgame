@@ -1,14 +1,15 @@
-import random
 import math
+import random
 from world_02 import World
 
 
 RENDER = 10
-results = []
 World.EPISODE_LIMIT = 5000
-agents = 100
 
+agents = 100
 creatures = {}
+results = []
+
 for a in range(agents):
     WINDOW_TITLE = 'agent {}'.format(a)
     w = World(WINDOW_TITLE, RENDER=RENDER)
@@ -21,7 +22,7 @@ for a in range(agents):
     # neuralnet params
     bias = True
     input_nodes = 3
-    hidden_neurons = 5
+    hidden_neurons = 3
     output_neurons = 1
 
     weights_0 = []

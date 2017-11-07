@@ -21,7 +21,7 @@ for a in range(agents):
 
     # neuralnet params
     bias = True
-    input_nodes = 3
+    input_nodes = 2
     hidden_neurons = 3
     output_neurons = 1
 
@@ -40,12 +40,10 @@ for a in range(agents):
         w.episode(move)
 
         last_dist = dist
-
         dist = w.player.closest_food()
         delta = dist - last_dist
 
         input_layer = [delta, move]
-        # input_layer = [dist, last_dist, move]
         if bias:
             input_layer.append(1)
         hidden_layer = [math.tanh(sum([i * w for i, w in zip(input_layer, weights_0[r])])) for r in range(hidden_neurons)]

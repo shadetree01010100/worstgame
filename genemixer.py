@@ -37,7 +37,8 @@ def mix_genes(a, b, mutation_rate=0.01, output=False):
         else:
             mutations.append('-')
         genes.append(gene)
-    genes[1] = '0' # prevent nan by fixing this gene at 0, blame IEEE
+    genes[1] = '0' # prevent inf/nan by fixing this gene at 0, blame IEEE
+    # todo: fixed point arithmatic
     offspring_dna = ''.join(genes)
     offspring = bin_to_float(offspring_dna)
     if output:

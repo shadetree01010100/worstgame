@@ -12,7 +12,7 @@ from world_03 import World
 plt.ion()
 
 World.EPISODE_LIMIT = 5000
-max_generations = 100
+max_generations = 500
 generation_size = 100
 # neuralnet params
 bias = True
@@ -64,7 +64,8 @@ def sigmoid(x):
 winners = []
 bests = []
 worsts = []
-averages = []
+means = []
+deviations = []
 generation = random_generation()
 for gen in range(max_generations):
     world = World(RENDER=False)
@@ -73,21 +74,27 @@ for gen in range(max_generations):
         weights_0 = generation[agent]['weights_0']
         weights_1 = generation[agent]['weights_1']
         generation[agent]['fitness'] = run(w, weights_0, weights_1)
-    best = max([generation[agent]['fitness'] for agent in generation])
-    worst = min([generation[agent]['fitness'] for agent in generation])
-    average = round(sum([generation[agent]['fitness'] for agent in generation]) / generation_size, 1)
+    fitnesses = [generation[agent]['fitness'] for agent in generation]
+    best = max(fitnesses)
+    worst = min(fitnesses)
+    mean = statistics.mean(fitnesses)
+    deviation = statistics.stdev(fitnesses, xbar=mean)
+    # median = statistics.median(fitnesses)
     bests.append(best)
     worsts.append(worst)
-    averages.append(average)
-    median = round(statistics.median([generation[agent]['fitness'] for agent in generation]), 1)
+    means.append(mean)
+    deviations.append(deviation)
     print('\tGENERATION ', gen)
     print('\tbest:    ', best)
     print('\tworst:   ', worst)
-    print('\tmedian:  ', median)
-    print('\taverage: ', average)
+    # print('\tmedian:  ', round(median, 1))
+    print('\tmean: ', round(mean, 1))
+    print('\tstdev: ', round(deviation, 1))
     plt.plot(bests)
     plt.plot(worsts)
-    plt.plot(averages)
+    plt.plot(means)
+    plt.plot([m + d for m, d in zip(means, deviations)])
+    plt.plot([max(m - d, -50) for m, d in zip(means, deviations)]) # clamp lower stdev bound at lowest possible fitness
     plt.show()
     plt.pause(0.01)
     # more than one agent may have highest fitness

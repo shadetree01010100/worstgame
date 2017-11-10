@@ -14,8 +14,8 @@ from world_03 import World
 
 
 World.EPISODE_LIMIT = 5000
-max_generations = 10
-generation_size = 10
+max_generations = 200
+generation_size = 100
 # neuralnet params
 bias = True
 input_nodes = 2
@@ -129,7 +129,7 @@ if __name__ == '__main__':
         means.append(mean)
         deviations.append(deviation)
         dev_hi = [m + d for m, d in zip(means, deviations)]
-        dev_lo = [max(m - d, worsts[-1]) for m, d in zip(means, deviations)] # clamp lower stdev bound at worst
+        dev_lo = [m - d for m, d in zip(means, deviations)]
         # _graph()
         # more than one agent may have highest fitness
         winners.append(random.choice([generation[agent] for agent in generation if generation[agent]['fitness'] == best]))

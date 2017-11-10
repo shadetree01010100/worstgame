@@ -3,23 +3,31 @@ import math
 import random
 import statistics
 from multiprocessing import Pool
+import threading
 
-import matplotlib.pyplot as plt
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
 
 import genemixer
 from world_03 import World
 
 
-plt.ion()
-
 World.EPISODE_LIMIT = 5000
-max_generations = 32
-generation_size = 32
+max_generations = 10
+generation_size = 10
 # neuralnet params
 bias = True
 input_nodes = 2
 hidden_neurons = 3
 output_neurons = 1
+
+bests = []
+worsts = []
+means = []
+deviations = []
+dev_hi = []
+dev_lo = []
 
 def feed_forward(input_layer, weights_0, weights_1):
     if bias:
@@ -63,12 +71,41 @@ def sigmoid(x):
     x0 = (generation_size - 1) / 2
     return 1 / (1 + math.e ** -(k * (x - x0)))
 
+app = dash.Dash()
+app.layout = html.Div([
+    html.Button('REFRESH', id='refresh', n_clicks=0),
+    dcc.Graph(id='fitness', figure={})])
+
+
+@app.callback(
+    dash.dependencies.Output('fitness', 'figure'),
+    [dash.dependencies.Input('refresh', 'n_clicks')])
+def _graph(n_clicks):
+    return {
+        'data': [
+            {'y': means, 'name': 'mean'},
+            {'y': dev_hi, 'name': 'dev_hi'},
+            {'y': dev_lo, 'name': 'dev_lo'},
+            {'y': bests, 'name': 'best'},
+            {'y': worsts, 'name': 'worst'}],
+        'layout': {'title': 'fitness'}}
+# app = dash.Dash()
+# app.layout = html.Div(children =[dcc.Graph(id='fitness', figure=_graph())])
+
+
+def _plot_server():
+    app.run_server(debug=False,  host='0.0.0.0')
+
 if __name__ == '__main__':
+    plot_thread = threading.Thread(target=_plot_server)
+    plot_thread.start()
     winners = []
     bests = []
     worsts = []
     means = []
     deviations = []
+    dev_hi = []
+    dev_lo = []
     generation = random_generation()
     for gen in range(max_generations):
         world = World(RENDER=False)
@@ -78,7 +115,7 @@ if __name__ == '__main__':
             weights_0 = generation[agent]['weights_0']
             weights_1 = generation[agent]['weights_1']
             agents.append((w, weights_0, weights_1))
-        with Pool() as p:
+        with Pool(18) as p:
             fitnesses = p.map(run, agents)
         for i, score in enumerate(fitnesses):
             generation[i]['fitness'] = score
@@ -91,19 +128,9 @@ if __name__ == '__main__':
         worsts.append(worst)
         means.append(mean)
         deviations.append(deviation)
-        # print('\tGENERATION ', gen)
-        # print('\tbest:    ', best)
-        # print('\tworst:   ', worst)
-        # # print('\tmedian:  ', round(median, 1))
-        # print('\tmean: ', round(mean, 1))
-        # print('\tstdev: ', round(deviation, 1))
-        plt.plot(bests)
-        plt.plot(worsts)
-        plt.plot(means)
-        plt.plot([m + d for m, d in zip(means, deviations)])
-        plt.plot([max(m - d, worsts[-1]) for m, d in zip(means, deviations)]) # clamp lower stdev bound at worst
-        plt.show()
-        plt.pause(0.01)
+        dev_hi = [m + d for m, d in zip(means, deviations)]
+        dev_lo = [max(m - d, worsts[-1]) for m, d in zip(means, deviations)] # clamp lower stdev bound at worst
+        # _graph()
         # more than one agent may have highest fitness
         winners.append(random.choice([generation[agent] for agent in generation if generation[agent]['fitness'] == best]))
         sorted_generation = sorted(generation, key=lambda k: generation[k]['fitness'])

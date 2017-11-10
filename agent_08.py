@@ -29,6 +29,11 @@ deviations = []
 dev_hi = []
 dev_lo = []
 
+app = dash.Dash()
+app.layout = html.Div([
+    html.Button('REFRESH', id='refresh', n_clicks=0),
+    dcc.Graph(id='fitness', figure={})])
+
 def feed_forward(input_layer, weights_0, weights_1):
     if bias:
         input_layer.append(1)
@@ -71,12 +76,6 @@ def sigmoid(x):
     x0 = (generation_size - 1) / 2
     return 1 / (1 + math.e ** -(k * (x - x0)))
 
-app = dash.Dash()
-app.layout = html.Div([
-    html.Button('REFRESH', id='refresh', n_clicks=0),
-    dcc.Graph(id='fitness', figure={})])
-
-
 @app.callback(
     dash.dependencies.Output('fitness', 'figure'),
     [dash.dependencies.Input('refresh', 'n_clicks')])
@@ -89,9 +88,6 @@ def _graph(n_clicks):
             {'y': bests, 'name': 'best'},
             {'y': worsts, 'name': 'worst'}],
         'layout': {'title': 'fitness'}}
-# app = dash.Dash()
-# app.layout = html.Div(children =[dcc.Graph(id='fitness', figure=_graph())])
-
 
 def _plot_server():
     app.run_server(debug=False,  host='0.0.0.0')
@@ -130,7 +126,6 @@ if __name__ == '__main__':
         deviations.append(deviation)
         dev_hi = [m + d for m, d in zip(means, deviations)]
         dev_lo = [m - d for m, d in zip(means, deviations)]
-        # _graph()
         # more than one agent may have highest fitness
         winners.append(random.choice([generation[agent] for agent in generation if generation[agent]['fitness'] == best]))
         sorted_generation = sorted(generation, key=lambda k: generation[k]['fitness'])

@@ -3,13 +3,13 @@ import struct
 
 
 def float_to_bin(f):
-    ba = struct.pack('>f', f)
+    ba = struct.pack('>i', int(round(f * 100000)))
     s = ''.join('{:08b}'.format(b) for b in ba)
     return s
 
 def bin_to_float(b):
     bf = int_to_bytes(int(b, 2), 4)
-    return struct.unpack('>f', bf)[0]
+    return struct.unpack('>i', bf)[0] / 100000
 
 def int_to_bytes(n, minlen=0):
     nbits = n.bit_length() + (1 if n < 0 else 0)
@@ -37,8 +37,6 @@ def mix_genes(a, b, mutation_rate=0.01, output=False):
         else:
             mutations.append('-')
         genes.append(gene)
-    genes[1] = '0' # prevent inf/nan by fixing this gene at 0, blame IEEE
-    # todo: fixed point arithmatic
     offspring_dna = ''.join(genes)
     offspring = bin_to_float(offspring_dna)
     if output:
@@ -58,6 +56,6 @@ if __name__ == '__main__':
     os.system('cls')
     print('')
     for _ in range(10):
-        donor_a = random.gauss(0, 1)
-        donor_b = random.gauss(0, 1)
+        donor_a = random.gauss(0, 3)
+        donor_b = random.gauss(0, 3)
         mix_genes(donor_a, donor_b, output=True)

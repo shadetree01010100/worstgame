@@ -14,8 +14,8 @@ from world_03 import World
 
 
 World.EPISODE_LIMIT = 5000
-max_generations = 10
-generation_size = 10
+max_generations = 100
+generation_size = 100
 # neuralnet params
 bias = True
 input_nodes = 2
@@ -28,6 +28,11 @@ means = []
 deviations = []
 dev_hi = []
 dev_lo = []
+
+app = dash.Dash()
+app.layout = html.Div([
+    html.Button('REFRESH', id='refresh', n_clicks=0),
+    dcc.Graph(id='fitness', figure={})])
 
 def feed_forward(input_layer, weights_0, weights_1):
     if bias:
@@ -71,12 +76,6 @@ def sigmoid(x):
     x0 = (generation_size - 1) / 2
     return 1 / (1 + math.e ** -(k * (x - x0)))
 
-app = dash.Dash()
-app.layout = html.Div([
-    html.Button('REFRESH', id='refresh', n_clicks=0),
-    dcc.Graph(id='fitness', figure={})])
-
-
 @app.callback(
     dash.dependencies.Output('fitness', 'figure'),
     [dash.dependencies.Input('refresh', 'n_clicks')])
@@ -89,9 +88,6 @@ def _graph(n_clicks):
             {'y': bests, 'name': 'best'},
             {'y': worsts, 'name': 'worst'}],
         'layout': {'title': 'fitness'}}
-# app = dash.Dash()
-# app.layout = html.Div(children =[dcc.Graph(id='fitness', figure=_graph())])
-
 
 def _plot_server():
     app.run_server(debug=False,  host='0.0.0.0')
@@ -129,8 +125,7 @@ if __name__ == '__main__':
         means.append(mean)
         deviations.append(deviation)
         dev_hi = [m + d for m, d in zip(means, deviations)]
-        dev_lo = [max(m - d, worsts[-1]) for m, d in zip(means, deviations)] # clamp lower stdev bound at worst
-        # _graph()
+        dev_lo = [m - d for m, d in zip(means, deviations)]
         # more than one agent may have highest fitness
         winners.append(random.choice([generation[agent] for agent in generation if generation[agent]['fitness'] == best]))
         sorted_generation = sorted(generation, key=lambda k: generation[k]['fitness'])

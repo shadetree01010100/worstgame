@@ -86,6 +86,8 @@ class World():
 
     def done(self):
         fitness = self.EPISODE_LIMIT - self.episodes - len(self.foods)
+        if fitness < 0:
+            fitness *= 20
         if not self.foods or self.episodes == self.EPISODE_LIMIT:
             if self.RENDER:
                 pygame.display.quit()
@@ -94,7 +96,7 @@ class World():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
-                    return -len(self.foods)
+                    return -(len(self.foods) * 20)
             self._draw_world()
         return 0
 

@@ -1,3 +1,4 @@
+import os
 import copy
 import math
 import random
@@ -14,25 +15,25 @@ from world_03 import World
 
 
 World.EPISODE_LIMIT = 5000
-max_generations = 200
-generation_size = 100
+max_generations = 100
+generation_size = 50
 # neuralnet params
 bias = True
 input_nodes = 2
 hidden_neurons = 3
 output_neurons = 1
 
+winners = []
 bests = []
 worsts = []
 means = []
-deviations = []
-dev_hi = []
-dev_lo = []
+positive_means = []
+negative_means = []
 
 app = dash.Dash()
 app.layout = html.Div([
-    html.Button('REFRESH', id='refresh', n_clicks=0),
-    dcc.Graph(id='fitness', figure={})])
+    dcc.Graph(id='fitness', figure={}),
+    dcc.Interval(id='interval-component', interval=10 * 1000)])
 
 def feed_forward(input_layer, weights_0, weights_1):
     if bias:
@@ -73,36 +74,32 @@ def random_generation():
 def sigmoid(x):
     # roughly 3 to 97%
     k = 7 / generation_size
-    x0 = (generation_size - 1) / 2
+    x0 = (generation_size - 1) / 3
     return 1 / (1 + math.e ** -(k * (x - x0)))
 
 @app.callback(
     dash.dependencies.Output('fitness', 'figure'),
-    [dash.dependencies.Input('refresh', 'n_clicks')])
-def _graph(n_clicks):
+    events=[dash.dependencies.Event('interval-component', 'interval')])
+def _graph():
     return {
         'data': [
-            {'y': means, 'name': 'mean'},
-            {'y': dev_hi, 'name': 'dev_hi'},
-            {'y': dev_lo, 'name': 'dev_lo'},
-            {'y': bests, 'name': 'best'},
-            {'y': worsts, 'name': 'worst'}],
-        'layout': {'title': 'fitness'}}
+            {'y': means, 'name': 'mean', 'line': {'color': 'blue', 'width': 4}, 'mode': 'lines'},
+            {'y': positive_means, 'name': 'pos_mean', 'line': {'color': 'blue', 'width': 2}, 'mode': 'lines'},
+            {'y': negative_means, 'name': 'neg_mean', 'line': {'color': 'blue', 'width': 2}, 'mode': 'lines'},
+            {'y': bests, 'name': 'best', 'line': {'color': 'blue', 'width': 2, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': worsts, 'name': 'worst', 'line': {'color': 'blue', 'width': 2, 'dash': 'dash'}, 'mode': 'lines'}],
+        'layout': {'title': 'fitness', 'showlegend': False}}
 
 def _plot_server():
     app.run_server(debug=False,  host='0.0.0.0')
 
 if __name__ == '__main__':
+    reserved_cores = input('\treserve n cpu cores: ')
+    reserved_cores = reserved_cores or 0
     plot_thread = threading.Thread(target=_plot_server)
     plot_thread.start()
-    winners = []
-    bests = []
-    worsts = []
-    means = []
-    deviations = []
-    dev_hi = []
-    dev_lo = []
     generation = random_generation()
+    all_time_best = {'fitness': -1000}
     for gen in range(max_generations):
         world = World(RENDER=False)
         agents = []
@@ -111,28 +108,32 @@ if __name__ == '__main__':
             weights_0 = generation[agent]['weights_0']
             weights_1 = generation[agent]['weights_1']
             agents.append((w, weights_0, weights_1))
-        with Pool(18) as p:
+        with Pool(os.cpu_count() - int(reserved_cores)) as p:
             fitnesses = p.map(run, agents)
         for i, score in enumerate(fitnesses):
             generation[i]['fitness'] = score
         best = max(fitnesses)
         worst = min(fitnesses)
-        mean = statistics.mean(fitnesses)
-        deviation = statistics.stdev(fitnesses, xbar=mean)
-        # median = statistics.median(fitnesses)
+        mean = int(round(statistics.mean(fitnesses)))
         bests.append(best)
         worsts.append(worst)
         means.append(mean)
-        deviations.append(deviation)
-        dev_hi = [m + d for m, d in zip(means, deviations)]
-        dev_lo = [m - d for m, d in zip(means, deviations)]
+        positive_mean = int(round(statistics.mean([f for f in fitnesses if f > mean] or [mean])))
+        negative_mean = int(round(statistics.mean([f for f in fitnesses if f < mean] or [mean])))
+        positive_means.append(positive_mean)
+        negative_means.append(negative_mean)
         # more than one agent may have highest fitness
-        winners.append(random.choice([generation[agent] for agent in generation if generation[agent]['fitness'] == best]))
+        winner = random.choice(
+            [generation[agent] for agent in generation if generation[agent]['fitness'] == best])
+        winners.append(winner)
+        if winner['fitness'] > all_time_best['fitness']:
+            all_time_best = winner
+            all_time_best['generation'] = gen
         sorted_generation = sorted(generation, key=lambda k: generation[k]['fitness'])
         # the weak die off, uniform distribution
         survivors = [s for i, s in enumerate(sorted_generation) if sigmoid(i) > random.random()]
         need = generation_size - len(survivors)
-        # print('\t... culled {}'.format(need))
+        fitnesses.sort()
         # todo: weight survivors by fitness maybe?
         new_generation = {}
         for i, survivor in enumerate(survivors):
@@ -162,3 +163,4 @@ if __name__ == '__main__':
             if i % int(n) ==0 :
                 w = World(WINDOW_TITLE='WINNER #{}'.format(i), RENDER=True)
                 run((w, winner['weights_0'], winner['weights_1']))
+    print(all_time_best)

@@ -3,13 +3,13 @@ import struct
 
 
 def float_to_bin(f):
-    ba = struct.pack('>i', int(round(f * 100000)))
+    ba = struct.pack('>i', int(round(f * 10000000)))
     s = ''.join('{:08b}'.format(b) for b in ba)
     return s
 
 def bin_to_float(b):
     bf = int_to_bytes(int(b, 2), 4)
-    return struct.unpack('>i', bf)[0] / 100000
+    return struct.unpack('>i', bf)[0] / 10000000
 
 def int_to_bytes(n, minlen=0):
     nbits = n.bit_length() + (1 if n < 0 else 0)

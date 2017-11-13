@@ -16,8 +16,8 @@ from world_03 import World
 
 
 World.EPISODE_LIMIT = 5000
-max_generations = 100
-generation_size = 50
+max_generations = 500
+generation_size = 100
 # neuralnet params
 bias = True
 input_nodes = 2
@@ -90,17 +90,17 @@ def sigmoid(x):
 def _graph():
     return {
         'data': [
-            {'y': bests, 'name': 'best', 'line': {'color': 'blue', 'width': 2, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': worsts, 'name': 'worst', 'line': {'color': 'blue', 'width': 2, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': q10, 'name': '10th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': q20, 'name': '20th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': q30, 'name': '30th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': q40, 'name': '40th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': q50, 'name': '50th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': q60, 'name': '60th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': q70, 'name': '70th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': q80, 'name': '80th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': q90, 'name': '90th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'}],
+            {'y': bests, 'name': 'best', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': worsts, 'name': 'worst', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q10, 'name': '10th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
+            {'y': q20, 'name': '20th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
+            {'y': q30, 'name': '30th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
+            {'y': q40, 'name': '40th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
+            {'y': q50, 'name': '50th', 'line': {'color': 'blue', 'width': 2}, 'mode': 'lines'},
+            {'y': q60, 'name': '60th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
+            {'y': q70, 'name': '70th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
+            {'y': q80, 'name': '80th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
+            {'y': q90, 'name': '90th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'}],
         'layout': {'title': 'fitness percentiles', 'showlegend': False}}
 
 def _plot_server():

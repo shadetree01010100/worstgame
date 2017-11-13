@@ -6,6 +6,7 @@ import statistics
 from multiprocessing import Pool
 import threading
 
+import numpy as np
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -26,9 +27,15 @@ output_neurons = 1
 winners = []
 bests = []
 worsts = []
-means = []
-positive_means = []
-negative_means = []
+q10 = []
+q20 = []
+q30 = []
+q40 = []
+q50 = []
+q60 = []
+q70 = []
+q80 = []
+q90 = []
 
 app = dash.Dash()
 app.layout = html.Div([
@@ -83,12 +90,18 @@ def sigmoid(x):
 def _graph():
     return {
         'data': [
-            {'y': means, 'name': 'mean', 'line': {'color': 'blue', 'width': 4}, 'mode': 'lines'},
-            {'y': positive_means, 'name': 'pos_mean', 'line': {'color': 'blue', 'width': 2}, 'mode': 'lines'},
-            {'y': negative_means, 'name': 'neg_mean', 'line': {'color': 'blue', 'width': 2}, 'mode': 'lines'},
             {'y': bests, 'name': 'best', 'line': {'color': 'blue', 'width': 2, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': worsts, 'name': 'worst', 'line': {'color': 'blue', 'width': 2, 'dash': 'dash'}, 'mode': 'lines'}],
-        'layout': {'title': 'fitness', 'showlegend': False}}
+            {'y': worsts, 'name': 'worst', 'line': {'color': 'blue', 'width': 2, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q10, 'name': '10th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q20, 'name': '20th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q30, 'name': '30th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q40, 'name': '40th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q50, 'name': '50th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q60, 'name': '60th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q70, 'name': '70th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q80, 'name': '80th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': q90, 'name': '90th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'}],
+        'layout': {'title': 'fitness percentiles', 'showlegend': False}}
 
 def _plot_server():
     app.run_server(debug=False,  host='0.0.0.0')
@@ -114,14 +127,17 @@ if __name__ == '__main__':
             generation[i]['fitness'] = score
         best = max(fitnesses)
         worst = min(fitnesses)
-        mean = int(round(statistics.mean(fitnesses)))
         bests.append(best)
         worsts.append(worst)
-        means.append(mean)
-        positive_mean = int(round(statistics.mean([f for f in fitnesses if f > mean] or [mean])))
-        negative_mean = int(round(statistics.mean([f for f in fitnesses if f < mean] or [mean])))
-        positive_means.append(positive_mean)
-        negative_means.append(negative_mean)
+        q10.append(np.percentile(fitnesses, 10, interpolation='lower'))
+        q20.append(np.percentile(fitnesses, 20, interpolation='lower'))
+        q30.append(np.percentile(fitnesses, 30, interpolation='lower'))
+        q40.append(np.percentile(fitnesses, 40, interpolation='lower'))
+        q50.append(np.percentile(fitnesses, 50, interpolation='lower'))
+        q60.append(np.percentile(fitnesses, 60, interpolation='lower'))
+        q70.append(np.percentile(fitnesses, 70, interpolation='lower'))
+        q80.append(np.percentile(fitnesses, 80, interpolation='lower'))
+        q90.append(np.percentile(fitnesses, 90, interpolation='lower'))
         # more than one agent may have highest fitness
         winner = random.choice(
             [generation[agent] for agent in generation if generation[agent]['fitness'] == best])

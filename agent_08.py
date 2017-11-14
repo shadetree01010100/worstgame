@@ -39,8 +39,8 @@ q90 = []
 
 app = dash.Dash()
 app.layout = html.Div([
-    dcc.Graph(id='fitness', figure={}),
-    dcc.Interval(id='interval-component', interval=10 * 1000)])
+    html.Button('REFRESH', id='refresh', n_clicks=0),
+    dcc.Graph(id='fitness', figure={})])
 
 def feed_forward(input_layer, weights_0, weights_1):
     if bias:
@@ -86,12 +86,12 @@ def sigmoid(x):
 
 @app.callback(
     dash.dependencies.Output('fitness', 'figure'),
-    events=[dash.dependencies.Event('interval-component', 'interval')])
-def _graph():
+    [dash.dependencies.Input('refresh', 'n_clicks')])
+def _graph(n_clicks):
     return {
         'data': [
-            {'y': bests, 'name': 'best', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
-            {'y': worsts, 'name': 'worst', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': bests, 'name': '100th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
+            {'y': worsts, 'name': '0th', 'line': {'color': 'blue', 'width': 1, 'dash': 'dash'}, 'mode': 'lines'},
             {'y': q10, 'name': '10th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
             {'y': q20, 'name': '20th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
             {'y': q30, 'name': '30th', 'line': {'color': 'blue', 'width': 1}, 'mode': 'lines'},
